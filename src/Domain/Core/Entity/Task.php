@@ -141,7 +141,7 @@ final class Task extends BaseEntity
     }
 
     /**
-     * @return array
+     * @return Comment[]
      */
     public function getComments(): array
     {

@@ -3,5 +3,10 @@ parameters:
     paths:
         - app
         - src
-
+    ignoreErrors:
+        -
+            messages:
+                - '#Call to an undefined method [a-zA-Z0-9\\_]+::allowedFilters\(\)#'
+            paths:
+                - src/Infrastructure/Persistence/Repositories/*
     treatPhpDocTypesAsCertain: false

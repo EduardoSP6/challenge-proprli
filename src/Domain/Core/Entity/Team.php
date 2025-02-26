@@ -70,7 +70,7 @@ final class Team extends BaseEntity
     }
 
     /**
-     * @return array
+     * @return TeamMember[]
      */
     public function getMembers(): array
     {
