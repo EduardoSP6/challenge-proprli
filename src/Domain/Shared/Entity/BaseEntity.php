@@ -7,20 +7,24 @@ use Domain\Shared\ValueObject\Uuid;
 
 class BaseEntity
 {
-    private Uuid $uuid;
-    private DateTimeImmutable $createdAt;
-    private DateTimeImmutable|null $updatedAt;
+    private readonly Uuid $id;
+    private readonly DateTimeImmutable $createdAt;
+    private readonly DateTimeImmutable|null $updatedAt;
 
-    public function __construct(Uuid $uuid, DateTimeImmutable $createdAt, ?DateTimeImmutable $updatedAt = null)
+    public function __construct(
+        Uuid               $id,
+        DateTimeImmutable  $createdAt = new DateTimeImmutable(),
+        ?DateTimeImmutable $updatedAt = null
+    )
     {
-        $this->uuid = $uuid;
+        $this->id = $id;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
     }
 
-    public function getUuid(): Uuid
+    public function getId(): Uuid
     {
-        return $this->uuid;
+        return $this->id;
     }
 
     public function getCreatedAt(): DateTimeImmutable
