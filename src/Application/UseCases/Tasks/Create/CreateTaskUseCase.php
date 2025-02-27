@@ -2,10 +2,14 @@
 
 namespace Application\UseCases\Tasks\Create;
 
+use Application\Exceptions\UserDoesNotBelongTeamException;
+use Application\Exceptions\UserIsNotBuildingOwnerException;
 use Application\Repositories\BuildingRepository;
 use Application\Repositories\TaskRepository;
 use DateTimeImmutable;
+use Domain\Core\Entity\Building;
 use Domain\Core\Entity\Task;
+use Domain\Core\Entity\User;
 use Domain\Core\Enum\TaskStatus;
 use Domain\Shared\ValueObject\Uuid;
 use Exception;
@@ -37,17 +41,17 @@ class CreateTaskUseCase
     public function execute(CreateTaskInputDto $inputDto): void
     {
         try {
-            $building = $this->buildingRepository->find($inputDto->buildingId);
-            $assignedUser = UserService::findUserById($inputDto->assignedUserId);
+            $building = $this->findBuilding($inputDto->buildingId);
+            $assignedUser = $this->findAssignedUser($inputDto->assignedUserId);
 
             throw_if(
                 $inputDto->ownerId !== $building->getOwner()->getId()->value(),
-                new Exception("You are not the owner of this building")
+                new UserIsNotBuildingOwnerException()
             );
 
             throw_if(
                 !TeamService::userBelongsToTeam($building, $assignedUser),
-                new Exception("The assigned user does not belong to this team")
+                new UserDoesNotBelongTeamException()
             );
 
             $task = new Task(
@@ -71,5 +75,35 @@ class CreateTaskUseCase
             ]);
             throw $e;
         }
+    }
+
+    /**
+     * Find the Building.
+     *
+     * @param string $id
+     * @return Building|null
+     */
+    private function findBuilding(string $id): ?Building
+    {
+        $building = $this->buildingRepository->find($id);
+
+        throw_if(!$building, new Exception("Building not found"));
+
+        return $building;
+    }
+
+    /**
+     * Find the user.
+     *
+     * @param string $id
+     * @return User|null
+     */
+    private function findAssignedUser(string $id): ?User
+    {
+        $user = UserService::findUserById($id);
+
+        throw_if(!$user, new Exception("User not found"));
+
+        return $user;
     }
 }

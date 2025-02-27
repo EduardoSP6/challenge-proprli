@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Domain\Core\Enum\TaskStatus;
 use Domain\Core\Enum\TeamRole;
+use Illuminate\Support\Str;
 use Infrastructure\Persistence\Models\Building;
 use Infrastructure\Persistence\Models\Owner;
 use Infrastructure\Persistence\Models\Task;
@@ -215,12 +216,14 @@ class TaskTest extends TestCase
     public function test_it_should_create_a_task_successfully(): void
     {
         /** @var Building $building */
-        $building = Building::query()->first();
+        $building = Building::query()->whereHas('team')->first();
 
         $this->assertModelExists($building);
 
         /** @var User $assignedUser */
-        $assignedUser = User::query()->first();
+        $assignedUser = $building->team->members()
+            ->firstWhere(['role' => TeamRole::WORKER->value])
+            ->user;
 
         $this->assertModelExists($assignedUser);
 
@@ -275,7 +278,7 @@ class TaskTest extends TestCase
             ])
             ->post("/api/tasks", $data);
 
-        $response->assertUnprocessable();
+        $response->assertForbidden();
         $response->assertJson([
             "message" => "You are not the owner of this building"
         ]);
@@ -313,10 +316,33 @@ class TaskTest extends TestCase
             ])
             ->post("/api/tasks", $data);
 
-        $response->assertUnprocessable();
+        $response->assertForbidden();
         $response->assertJson([
             "message" => "The assigned user does not belong to this team"
         ]);
+    }
+
+    public function test_it_should_fail_to_create_a_task_with_mocked_data(): void
+    {
+        $buildingId = Str::orderedUuid()->toString();
+        $ownerId = Str::orderedUuid()->toString();
+        $assignedUserId = Str::orderedUuid()->toString();
+
+        $data = [
+            'building_id' => $buildingId,
+            'created_by' => $ownerId,
+            'assigned_to' => $assignedUserId,
+            'title' => "Task title",
+            'description' => "Task description",
+        ];
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => 'application/json',
+            ])
+            ->post("/api/tasks", $data);
+
+        $response->assertUnprocessable();
     }
 
     public function test_it_should_show_a_task_successfully(): void

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Str;
 use Infrastructure\Persistence\Models\Owner;
 use Infrastructure\Persistence\Models\Task;
 use Infrastructure\Persistence\Models\User;
@@ -55,6 +56,25 @@ class CommentTest extends TestCase
             ])
             ->post("/api/tasks/$task->id/comments", $data);
 
-        $response->assertUnprocessable();
+        $response->assertForbidden();
+    }
+
+    public function test_it_should_fail_to_add_a_task_comment_with_mocked_data(): void
+    {
+        $taskId = Str::orderedUuid()->toString();
+        $userId = Str::orderedUuid()->toString();
+
+        $data = [
+            'user_id' => $userId,
+            'content' => "Comment with invalid task owner",
+        ];
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => 'application/json',
+            ])
+            ->post("/api/tasks/$taskId/comments", $data);
+
+        $response->assertNotFound();
     }
 }

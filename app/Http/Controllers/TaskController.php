@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Resources\TaskResource;
+use Application\Exceptions\UserDoesNotBelongTeamException;
+use Application\Exceptions\UserIsNotBuildingOwnerException;
 use Application\UseCases\Tasks\Create\CreateTaskInputDto;
 use Application\UseCases\Tasks\Create\CreateTaskUseCase;
 use Application\UseCases\Tasks\Paginate\ListTasksUseCase;
@@ -150,6 +152,32 @@ class TaskController extends Controller
      *          response="422",
      *          description="Unprocessable Entity",
      *     ),
+     *
+     *     @OA\Response(
+     *          response="403",
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="The assigned user does not belong to this team",
+     *              ),
+     *          ),
+     *     ),
+     *
+     *     @OA\Response(
+     *          response="500",
+     *          description="Internal Server Error",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="Unable to complete the operation. Please try again later",
+     *              ),
+     *          ),
+     *     ),
      * )
      * @param CreateTaskRequest $request
      * @return JsonResponse
@@ -169,8 +197,12 @@ class TaskController extends Controller
                 ->execute($inputDto);
 
             return response()->json(["message" => "Task created successfully"], 201);
-        } catch (Exception $e) {
-            return response()->json(["message" => $e->getMessage()], 422);
+        } catch (UserDoesNotBelongTeamException|UserIsNotBuildingOwnerException $e) {
+            return response()->json(["message" => $e->getMessage()], 403);
+        } catch (Exception) {
+            return response()->json([
+                "message" => "Unable to complete the operation. Please try again later"
+            ], 500);
         }
     }
 

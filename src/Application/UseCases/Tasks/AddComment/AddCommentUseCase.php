@@ -2,9 +2,12 @@
 
 namespace Application\UseCases\Tasks\AddComment;
 
+use Application\Exceptions\AddCommentNotPermittedException;
 use Application\Repositories\TaskRepository;
 use DateTimeImmutable;
 use Domain\Core\Entity\Comment;
+use Domain\Core\Entity\Task;
+use Domain\Core\Entity\User;
 use Domain\Shared\ValueObject\Uuid;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -28,12 +31,12 @@ class AddCommentUseCase
     public function execute(AddCommentInputDto $inputDto): void
     {
         try {
-            $task = $this->taskRepository->find($inputDto->taskId);
-            $user = UserService::findUserById($inputDto->userId);
+            $task = $this->findTask($inputDto->taskId);
+            $user = $this->findUser($inputDto->userId);
 
             throw_if(
                 $user->getId()->value() !== $task->getCreatedBy()->getId()->value(),
-                new Exception("You are not the owner of this task")
+                new AddCommentNotPermittedException()
             );
 
             $comment = new Comment(
@@ -54,5 +57,35 @@ class AddCommentUseCase
             ]);
             throw $e;
         }
+    }
+
+    /**
+     * Find the task by ID.
+     *
+     * @param string $id
+     * @return Task|null
+     */
+    private function findTask(string $id): ?Task
+    {
+        $task = $this->taskRepository->find($id);
+
+        throw_if(!$task, new Exception("Task not found"));
+
+        return $task;
+    }
+
+    /**
+     * Find the user by ID.
+     *
+     * @param string $id
+     * @return User|null
+     */
+    private function findUser(string $id): ?User
+    {
+        $user = UserService::findUserById($id);
+
+        throw_if(!$user, new Exception("User not found"));
+
+        return $user;
     }
 }

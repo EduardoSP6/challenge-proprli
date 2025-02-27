@@ -17,7 +17,7 @@ use Faker\Factory as Faker;
 use Faker\Generator;
 use Tests\TestCase;
 
-class TaskTest extends TestCase
+class TaskEntityTest extends TestCase
 {
     protected Generator $faker;
 

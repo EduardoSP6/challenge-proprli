@@ -11,7 +11,7 @@ use Domain\Core\Factory\UserFactory;
 use Domain\Shared\ValueObject\Uuid;
 use Tests\TestCase;
 
-class TeamTest extends TestCase
+class TeamEntityTest extends TestCase
 {
     public function test_it_should_create_a_team_successfully(): void
     {

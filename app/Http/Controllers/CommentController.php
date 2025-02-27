@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddCommentRequest;
+use Application\Exceptions\AddCommentNotPermittedException;
 use Application\UseCases\Tasks\AddComment\AddCommentInputDto;
 use Application\UseCases\Tasks\AddComment\AddCommentUseCase;
 use Exception;
@@ -64,12 +65,51 @@ class CommentController extends Controller
      *
      *     @OA\Response(
      *          response="201",
-     *          description="Record created successfully",
+     *          description="Comment created successfully",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="Comment created successfully",
+     *              ),
+     *          ),
+     *     ),
+     *
+     *     @OA\Response(
+     *          response="403",
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="Only the task creator can add comments",
+     *              ),
+     *          ),
      *     ),
      *
      *     @OA\Response(
      *          response="422",
      *          description="Unprocessable Entity",
+     *     ),
+     *
+     *     @OA\Response(
+     *          response="401",
+     *          description="Task not found",
+     *     ),
+     *
+     *     @OA\Response(
+     *          response="500",
+     *          description="Internal Server Error",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="Unable to complete the operation. Please try again later",
+     *              ),
+     *          ),
      *     ),
      * )
      * @param AddCommentRequest $request
@@ -88,8 +128,12 @@ class CommentController extends Controller
             (new AddCommentUseCase($this->taskEloquentRepository))->execute($inputDto);
 
             return response()->json(["message" => "Comment created successfully"], 201);
-        } catch (Exception $e) {
-            return response()->json(["message" => $e->getMessage()], 422);
+        } catch (AddCommentNotPermittedException $e) {
+            return response()->json(["message" => $e->getMessage()], 403);
+        } catch (Exception) {
+            return response()->json([
+                "message" => "Unable to complete the operation. Please try again later"
+            ], 500);
         }
     }
 }
