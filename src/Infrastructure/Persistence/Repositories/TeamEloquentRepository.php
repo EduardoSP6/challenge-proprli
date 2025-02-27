@@ -3,8 +3,10 @@
 namespace Infrastructure\Persistence\Repositories;
 
 use Application\Repositories\TeamRepository;
+use Domain\Core\Entity\Building;
 use Domain\Core\Entity\Team;
 use Domain\Core\Entity\TeamMember;
+use Domain\Core\Entity\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -74,5 +76,23 @@ class TeamEloquentRepository implements TeamRepository
             "id" => $teamMember->getId()->value(),
             "role" => $teamMember->getRole()->value,
         ]);
+    }
+
+    /**
+     * Check if user belongs to a team related to a building.
+     *
+     * @param Building $building
+     * @param User $user
+     * @return bool
+     */
+    public function checkIfUserBelongsToBuildingTeam(Building $building, User $user): bool
+    {
+        /** @var TeamMemberModel $memberModel */
+        $memberModel = TeamMemberModel::query()
+            ->firstWhere('user_id', '=', $user->getId()->value());
+
+        if (!$memberModel) return false;
+
+        return $memberModel->team->building_id === $building->getId()->value();
     }
 }

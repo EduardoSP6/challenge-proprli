@@ -13,4 +13,6 @@ interface TaskRepository
     public function create(Task $task): void;
 
     public function addComment(Comment $comment): void;
+
+    public function find(string $id): ?Task;
 }

@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use DateTimeImmutable;
+use Domain\Core\Entity\Comment;
 use Domain\Core\Entity\Task;
 use Domain\Core\Entity\Team;
 use Domain\Core\Enum\TaskStatus;
@@ -73,10 +74,15 @@ class TaskTest extends TestCase
             createdAt: new DateTimeImmutable()
         );
 
-        $task->addComment(
-            $owner,
-            $this->faker->realText
+        $comment = new Comment(
+            id: new Uuid(),
+            task: $task,
+            user: $owner,
+            content: $this->faker->realText,
+            createdAt: new DateTimeImmutable()
         );
+
+        $task->addComment($comment);
 
         $this->assertInstanceOf(Task::class, $task);
         $this->assertEquals($title, $task->getTitle());

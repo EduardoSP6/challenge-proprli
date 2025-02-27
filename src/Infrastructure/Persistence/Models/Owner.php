@@ -2,7 +2,10 @@
 
 namespace Infrastructure\Persistence\Models;
 
+use Database\Factories\OwnerFactory;
 use DateTimeImmutable;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -17,6 +20,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Owner extends User
 {
+    use HasFactory;
+
+    protected static function newFactory(): Factory
+    {
+        return OwnerFactory::new();
+    }
+
     public function buildings(): HasMany
     {
         return $this->hasMany(Building::class);

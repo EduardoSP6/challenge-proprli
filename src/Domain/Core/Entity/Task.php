@@ -149,19 +149,12 @@ final class Task extends BaseEntity
     }
 
     /**
-     * @param User $user
-     * @param string $content
+     * @param Comment $comment
      * @return void
      */
-    public function addComment(User $user, string $content): void
+    public function addComment(Comment $comment): void
     {
-        $this->comments[] = new Comment(
-            id: new Uuid(),
-            task: $this,
-            user: $user,
-            content: $content,
-            createdAt: new DateTimeImmutable()
-        );
+        $this->comments[] = $comment;
     }
 
     /**

@@ -3,8 +3,14 @@
 namespace Infrastructure\Persistence\Repositories;
 
 use Application\Repositories\TaskRepository;
+use Domain\Core\Entity\Building;
 use Domain\Core\Entity\Comment;
+use Domain\Core\Entity\Owner;
 use Domain\Core\Entity\Task;
+use Domain\Core\Entity\User;
+use Domain\Core\Enum\TaskStatus;
+use Domain\Core\Enum\UserRole;
+use Domain\Shared\ValueObject\Uuid;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -93,5 +99,78 @@ class TaskEloquentRepository implements TaskRepository
             'user_id' => $comment->getUser()->getId()->value(),
             'content' => $comment->getContent(),
         ]);
+    }
+
+    public function find(string $id): ?Task
+    {
+        /** @var TaskModel $taskModel */
+        $taskModel = TaskModel::query()
+            ->firstWhere(['id', '=', $id]);
+
+        if (!$taskModel) return null;
+
+        $owner = new Owner(
+            name: $taskModel->createdBy->name,
+            email: $taskModel->createdBy->email,
+        );
+
+        $building = new Building(
+            id: new Uuid($taskModel->building->id),
+            owner: $owner,
+            name: $taskModel->building->name,
+            address: $taskModel->building->address,
+            createdAt: $taskModel->building->created_at,
+            updatedAt: $taskModel->building->updated_at
+        );
+
+        $assignedUser = null;
+        if ($taskModel->assignedTo) {
+            $assignedUser = new User(
+                id: new Uuid($taskModel->assignedTo->id),
+                name: $taskModel->assignedTo->name,
+                email: $taskModel->assignedTo->email,
+                role: UserRole::from($taskModel->assignedTo->role),
+                createdAt: $taskModel->assignedTo->created_at,
+                updatedAt: $taskModel->assignedTo->updated_at
+            );
+        }
+
+        $task = new Task(
+            id: new Uuid($taskModel->id),
+            building: $building,
+            createdBy: $owner,
+            title: $taskModel->title,
+            description: $taskModel->description,
+            createdAt: $taskModel->created_at,
+            updatedAt: $taskModel->updated_at,
+            assignedTo: $assignedUser,
+            status: TaskStatus::from($taskModel->status)
+        );
+
+        if (count($taskModel->comments) > 0) {
+            foreach ($taskModel->comments as $comment) {
+                $commentUser = new User(
+                    id: new Uuid($comment->user->id),
+                    name: $comment->user->name,
+                    email: $comment->user->email,
+                    role: UserRole::from($comment->user->role),
+                    createdAt: $comment->user->created_at,
+                    updatedAt: $comment->user->updated_at,
+                );
+
+                $taskComment = new Comment(
+                    id: new Uuid($comment->id),
+                    task: $task,
+                    user: $commentUser,
+                    content: $comment->content,
+                    createdAt: $comment->created_at,
+                    updatedAt: $comment->updated_at
+                );
+
+                $task->addComment($taskComment);
+            }
+        }
+
+        return $task;
     }
 }

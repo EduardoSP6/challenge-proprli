@@ -2,7 +2,10 @@
 
 namespace Infrastructure\Persistence\Models;
 
+use Database\Factories\TeamMemberFactory;
 use DateTimeImmutable;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,6 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class TeamMember extends Model
 {
+    use HasFactory;
+
     protected $table = "team_members";
     protected $primaryKey = 'id';
     public $incrementing = false;
@@ -39,6 +44,11 @@ class TeamMember extends Model
         'created_at' => 'immutable_datetime',
         'updated_at' => 'immutable_datetime',
     ];
+
+    protected static function newFactory(): Factory
+    {
+        return TeamMemberFactory::new();
+    }
 
     public function team(): BelongsTo
     {

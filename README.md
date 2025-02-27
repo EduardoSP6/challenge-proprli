@@ -33,6 +33,12 @@ composer install
 php artisan key:generate
 ````
 
+## Creating tables and populate the database:
+
+````
+php artisan migrate --seed
+````
+
 ## Run tests with PHPUnit:
 
 ````
