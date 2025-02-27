@@ -3,6 +3,8 @@ parameters:
     paths:
         - app
         - src
+    excludePaths:
+        - app/Http/Resources/*
     ignoreErrors:
         -
             messages:

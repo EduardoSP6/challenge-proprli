@@ -22,6 +22,11 @@ class CommentController extends Controller
         $this->taskEloquentRepository = $taskEloquentRepository;
     }
 
+    /**
+     * @param AddCommentRequest $request
+     * @param Task $task
+     * @return JsonResponse
+     */
     public function store(AddCommentRequest $request, Task $task): JsonResponse
     {
         try {

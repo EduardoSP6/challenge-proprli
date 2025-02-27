@@ -43,6 +43,7 @@ class TaskEloquentRepository implements TaskRepository
             ])
             ->allowedSorts(['created_at', 'status'])
             ->defaultSort('-created_at')
+            ->allowedIncludes(['building', 'assignedTo'])
             ->paginate($perPage, $columns, 'page', $page);
     }
 
@@ -62,17 +63,19 @@ class TaskEloquentRepository implements TaskRepository
                 "status" => $task->getStatus()->value,
             ]);
 
-            $comments = [];
-            foreach ($task->getComments() as $comment) {
-                $comments[] = [
-                    'id' => $comment->getId()->value(),
-                    'task_id' => $newTask->id,
-                    'user_id' => $comment->getUser()->getId()->value(),
-                    'content' => $comment->getContent(),
-                ];
-            }
+            if (count($task->getComments()) > 0) {
+                $comments = [];
+                foreach ($task->getComments() as $comment) {
+                    $comments[] = [
+                        'id' => $comment->getId()->value(),
+                        'task_id' => $newTask->id,
+                        'user_id' => $comment->getUser()->getId()->value(),
+                        'content' => $comment->getContent(),
+                    ];
+                }
 
-            $newTask->comments()->create($comments);
+                $newTask->comments()->create($comments);
+            }
 
             DB::commit();
         } catch (Exception $e) {
@@ -105,11 +108,12 @@ class TaskEloquentRepository implements TaskRepository
     {
         /** @var TaskModel $taskModel */
         $taskModel = TaskModel::query()
-            ->firstWhere(['id', '=', $id]);
+            ->firstWhere('id', '=', $id);
 
         if (!$taskModel) return null;
 
         $owner = new Owner(
+            id: new Uuid($taskModel->createdBy->id),
             name: $taskModel->createdBy->name,
             email: $taskModel->createdBy->email,
         );

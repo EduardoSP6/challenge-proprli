@@ -5,7 +5,6 @@ namespace Application\UseCases\Tasks\Create;
 use Application\Repositories\BuildingRepository;
 use Application\Repositories\TaskRepository;
 use DateTimeImmutable;
-use Domain\Core\Entity\Building;
 use Domain\Core\Entity\Task;
 use Domain\Core\Enum\TaskStatus;
 use Domain\Shared\ValueObject\Uuid;
@@ -32,10 +31,13 @@ class CreateTaskUseCase
         $this->buildingRepository = $buildingRepository;
     }
 
+    /**
+     * @throws Exception
+     */
     public function execute(CreateTaskInputDto $inputDto): void
     {
         try {
-            $building = $this->findBuilding($inputDto->buildingId);
+            $building = $this->buildingRepository->find($inputDto->buildingId);
             $assignedUser = UserService::findUserById($inputDto->assignedUserId);
 
             throw_if(
@@ -45,7 +47,7 @@ class CreateTaskUseCase
 
             throw_if(
                 !TeamService::userBelongsToTeam($building, $assignedUser),
-                new Exception("You do not belong on this team")
+                new Exception("The assigned user does not belong to this team")
             );
 
             $task = new Task(
@@ -67,17 +69,7 @@ class CreateTaskUseCase
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+            throw $e;
         }
-    }
-
-    /**
-     * Find the building.
-     *
-     * @param string $id
-     * @return Building|null
-     */
-    protected function findBuilding(string $id): ?Building
-    {
-        return $this->buildingRepository->find($id);
     }
 }

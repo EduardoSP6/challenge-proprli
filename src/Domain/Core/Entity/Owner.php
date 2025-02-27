@@ -8,8 +8,8 @@ use Domain\Shared\ValueObject\Uuid;
 
 final class Owner extends User
 {
-    public function __construct(string $name, string $email)
+    public function __construct(Uuid $id, string $name, string $email)
     {
-        parent::__construct(new Uuid(), $name, $email, UserRole::OWNER, new DateTimeImmutable());
+        parent::__construct($id, $name, $email, UserRole::OWNER, new DateTimeImmutable());
     }
 }

@@ -14,7 +14,7 @@ class UserEloquentRepository implements UserRepository
     public function find(string $id): ?User
     {
         /** @var UserModel $userModel */
-        $userModel = UserModel::query()->firstWhere(['id', '=', $id]);
+        $userModel = UserModel::query()->firstWhere('id', '=', $id);
 
         if (!$userModel) return null;
 

@@ -31,6 +31,9 @@ class TaskController extends Controller
         $this->buildingEloquentRepository = $buildingEloquentRepository;
     }
 
+    /**
+     * @return AnonymousResourceCollection
+     */
     public function index(): AnonymousResourceCollection
     {
         $tasks = (new ListTasksUseCase($this->taskEloquentRepository))->execute();
@@ -38,6 +41,10 @@ class TaskController extends Controller
         return TaskResource::collection($tasks);
     }
 
+    /**
+     * @param CreateTaskRequest $request
+     * @return JsonResponse
+     */
     public function store(CreateTaskRequest $request): JsonResponse
     {
         try {

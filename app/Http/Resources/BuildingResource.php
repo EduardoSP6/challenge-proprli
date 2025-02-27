@@ -13,7 +13,6 @@ class BuildingResource extends JsonResource
         /** @var Building $this */
         return [
             'id' => $this->id,
-            'owner_id',
             'name' => $this->name,
             'address' => $this->address,
         ];

@@ -30,11 +30,12 @@ class BuildingEloquentRepository implements BuildingRepository
     {
         /** @var BuildingModel $buildingModel */
         $buildingModel = BuildingModel::query()
-            ->firstWhere(['id', '=', $id]);
+            ->firstWhere('id', '=', $id);
 
         if (!$buildingModel) return null;
 
         $owner = new Owner(
+            id: new Uuid($buildingModel->owner->id),
             name: $buildingModel->owner->name,
             email: $buildingModel->owner->email,
         );

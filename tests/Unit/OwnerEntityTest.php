@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Domain\Core\Entity\Owner;
+use Domain\Shared\ValueObject\Uuid;
 use DomainException;
 use Faker\Factory as Faker;
 use Faker\Generator;
@@ -30,6 +31,7 @@ class OwnerEntityTest extends TestCase
         $this->expectExceptionMessage("User name can not be empty");
 
         new Owner(
+            id: new Uuid(),
             name: "   ",
             email: $this->faker->email,
         );
@@ -41,6 +43,7 @@ class OwnerEntityTest extends TestCase
         $this->expectExceptionMessage("Invalid user email");
 
         new Owner(
+            id: new Uuid(),
             name: $this->faker->name,
             email: "john.doe",
         );
@@ -49,6 +52,7 @@ class OwnerEntityTest extends TestCase
     public function test_it_should_create_a_owner_successfully(): void
     {
         $owner = new Owner(
+            id: new Uuid(),
             name: $this->faker->name,
             email: $this->faker->email,
         );

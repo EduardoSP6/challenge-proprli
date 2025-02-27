@@ -72,9 +72,9 @@ class User extends Authenticatable
         return UserFactory::new();
     }
 
-    public function teamMemberships(): HasMany
+    public function teamMembers(): HasMany
     {
-        return $this->hasMany(TeamMember::class);
+        return $this->hasMany(TeamMember::class, "user_id");
     }
 
     public function tasks(): HasMany

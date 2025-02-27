@@ -22,6 +22,9 @@ class AddCommentUseCase
         $this->taskRepository = $taskRepository;
     }
 
+    /**
+     * @throws Exception
+     */
     public function execute(AddCommentInputDto $inputDto): void
     {
         try {
@@ -49,6 +52,7 @@ class AddCommentUseCase
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+            throw $e;
         }
     }
 }
