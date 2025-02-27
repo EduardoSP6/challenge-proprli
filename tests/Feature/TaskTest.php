@@ -6,6 +6,7 @@ use Domain\Core\Enum\TaskStatus;
 use Domain\Core\Enum\TeamRole;
 use Infrastructure\Persistence\Models\Building;
 use Infrastructure\Persistence\Models\Owner;
+use Infrastructure\Persistence\Models\Task;
 use Infrastructure\Persistence\Models\Team;
 use Infrastructure\Persistence\Models\User;
 use Tests\TestCase;
@@ -316,5 +317,50 @@ class TaskTest extends TestCase
         $response->assertJson([
             "message" => "The assigned user does not belong to this team"
         ]);
+    }
+
+    public function test_it_should_show_a_task_successfully(): void
+    {
+        /** @var Task $task */
+        $task = Task::query()->first();
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => 'application/json',
+            ])
+            ->get("/api/tasks/$task->id");
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'id',
+                'building' => [
+                    'id',
+                    'name',
+                    'address',
+                ],
+                'created_by' => [
+                    'name',
+                    'email'
+                ],
+                'assigned_to' => [
+                    'name',
+                    'email',
+                ],
+                'title',
+                'description',
+                'status',
+                'status_description',
+                'created_at',
+                'comments' => [
+                    '*' => [
+                        'user' => [
+                            'name',
+                            'email',
+                        ],
+                        'content',
+                        'created_at',
+                    ]
+                ]
+            ]);
     }
 }

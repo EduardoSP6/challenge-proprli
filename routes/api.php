@@ -24,5 +24,5 @@ Route::get('status', function () {
     ];
 });
 
-Route::apiResource('tasks', TaskController::class)->only(['index', 'store']);
+Route::apiResource('tasks', TaskController::class)->only(['index', 'store', 'show']);
 Route::apiResource('tasks.comments', CommentController::class)->only(['store']);

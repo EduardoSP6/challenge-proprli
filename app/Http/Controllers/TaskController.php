@@ -10,6 +10,7 @@ use Application\UseCases\Tasks\Paginate\ListTasksUseCase;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Infrastructure\Persistence\Models\Task;
 use Infrastructure\Persistence\Repositories\BuildingEloquentRepository;
 use Infrastructure\Persistence\Repositories\TaskEloquentRepository;
 
@@ -63,5 +64,14 @@ class TaskController extends Controller
         } catch (Exception $e) {
             return response()->json(["message" => $e->getMessage()], 422);
         }
+    }
+
+    /**
+     * @param Task $task
+     * @return TaskResource
+     */
+    public function show(Task $task): TaskResource
+    {
+        return TaskResource::make($task);
     }
 }
