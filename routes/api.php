@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +15,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::get('status', function () {
+    return [
+        'DATE' => date("y-m-d H:i:s"),
+        'APP_NAME' => config('app.name'),
+        'APP_ENV' => config('app.env'),
+        'APP_URL' => config('app.url'),
+    ];
 });
+
+Route::apiResource('tasks', TaskController::class)->only(['index', 'store']);
+Route::apiResource('tasks.comments', CommentController::class)->only(['store']);
