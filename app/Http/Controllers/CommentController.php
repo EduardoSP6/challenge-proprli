@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Infrastructure\Persistence\Models\Task;
 use Infrastructure\Persistence\Repositories\TaskEloquentRepository;
+use OpenApi\Annotations as OA;
 
 class CommentController extends Controller
 {
@@ -23,6 +24,54 @@ class CommentController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/tasks/{task}/comments",
+     *     operationId="addTaskComment",
+     *     tags={"TaskComments"},
+     *     summary="Create a task comment.",
+     *     description="Create a new task comment.",
+     *
+     *     @OA\Parameter(
+     *          in="path",
+     *          name="task",
+     *          required=true,
+     *          description="Task ID",
+     *          @OA\Schema(type="string", format="uuid")
+     *     ),
+     *
+     *     @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/x-www-form-urlencoded",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  required={"content", "user_id"},
+     *                  @OA\Property(
+     *                      property="content",
+     *                      type="string",
+     *                      description="Content",
+     *                      maxLength=400,
+     *                  ),
+     *                  @OA\Property(
+     *                      property="user_id",
+     *                      type="string",
+     *                      format="uuid",
+     *                      description="User ID",
+     *                  ),
+     *              ),
+     *          ),
+     *     ),
+     *
+     *     @OA\Response(
+     *          response="201",
+     *          description="Record created successfully",
+     *     ),
+     *
+     *     @OA\Response(
+     *          response="422",
+     *          description="Unprocessable Entity",
+     *     ),
+     * )
      * @param AddCommentRequest $request
      * @param Task $task
      * @return JsonResponse

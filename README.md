@@ -22,6 +22,10 @@ such as Open, In Progress, Completed, or Rejected.
 ## Installation:
 
 ````
+cp .env.example .env
+````
+
+````
 docker-compose up -d
 ````
 
@@ -50,3 +54,29 @@ php artisan test
 ````
 composer analyse
 ````
+
+## Generate API Docs with Swagger:
+
+````
+php artisan l5-swagger:generate
+````
+
+After executing the above command, the documentation will be 
+available at: http://localhost:8000/api/documentation
+
+## Code Structure:
+
+The structure was based on Clean Architecture, DDD and SOLID concepts, where the part of the code that 
+holds the business rules is in the **./src directory**. This directory is subdivided into:
+
+* Application - Layer responsible for the application flow. It contains use cases, interfaces, DTOs, etc.
+
+
+* Domain - Layer responsible for executing business rules. In it you will find entities, ValueObjects, Enums and Factories.
+
+
+* Infrastructure - Layer has concrete implementations of interfaces, such as: Repositories, Services, etc.
+
+
+* Tests - Layer responsible for unit and integration tests of the application. The tests were performed with PHPUnit and are in the ./tests/ directory.
+
